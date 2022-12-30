@@ -8,23 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
+
+    @State var isNight = false
+
     var body: some View {
         ZStack {
-            BackgroundView(topColor: .blue, bottomColor: Color("lightBlue"))
+            BackgroundView(isNight: $isNight)
             VStack {
                 CityTextView(city: "San Diego, CA")
                 MainWeatherView(imageName: "cloud.sun.fill", temperature: 76)
 
                 HStack(spacing: 20) {
-                    WeatherDayView(dayOfWeek: "TUES", imageName: "cloud.sun.fill", temperature: 56)
-                    WeatherDayView(dayOfWeek: "WED", imageName: "cloud.sun.fill", temperature: 78)
-                    WeatherDayView(dayOfWeek: "THUR", imageName: "cloud.sun.rain.fill", temperature: 78)
-                    WeatherDayView(dayOfWeek: "FRI", imageName: "sun.dust.fill", temperature: 78)
-                    WeatherDayView(dayOfWeek: "SAT", imageName: "cloud.drizzle.fill", temperature: 78)
+                    WeatherDayView(viewModel: WeatherDayViewModel(weekday: .mon, weatherType: .cloudy))
+                    WeatherDayView(viewModel: WeatherDayViewModel(weekday: .tues, weatherType: .drizzle))
+                    WeatherDayView(viewModel: WeatherDayViewModel(weekday: .wed, weatherType: .dusting))
+                    WeatherDayView(viewModel: WeatherDayViewModel(weekday: .thurs, weatherType: .rain))
+                    WeatherDayView(viewModel: WeatherDayViewModel(weekday: .fri, weatherType: .cloudy))
                 }
                 Spacer()
 
                 Button {
+                    isNight.toggle()
                     print("tapped")
                 } label: {
                     ButtonView(buttonText: "Change Day Time", textColor: .blue, backgroundColor: .white)
@@ -42,9 +46,16 @@ struct ContentView_Previews: PreviewProvider {
 }
 
 struct WeatherDayView: View {
+
     var dayOfWeek: String
     var imageName: String
     var temperature: Int
+
+    init(viewModel: WeatherDayViewModel) {
+        self.dayOfWeek = viewModel.weekday.rawValue
+        self.imageName = viewModel.weatherType.rawValue
+        self.temperature = viewModel.temperature
+    }
 
     var body: some View {
         VStack {
@@ -64,11 +75,10 @@ struct WeatherDayView: View {
 }
 
 struct BackgroundView: View {
-    var topColor: Color
-    var bottomColor: Color
+    @Binding var isNight: Bool
 
     var body: some View {
-        LinearGradient(colors: [topColor, bottomColor],
+        LinearGradient(colors: [isNight ? .black : .blue, isNight ? .gray : Color("lightBlue")],
                        startPoint: .topLeading,
                        endPoint: .bottomTrailing)
         .edgesIgnoringSafeArea(.all)
